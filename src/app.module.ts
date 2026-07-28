@@ -1,11 +1,10 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { databaseOptions } from './config/datasource';
-import { UsuariosService } from './modules/usuarios/usuarios.service';
-import { UsuariosController } from './modules/usuarios/usuarios.controller';
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { databaseOptions } from "./config/datasource";
+import { UsuariosModule } from "./modules/usuarios/usuarios.module";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
 
 @Module({
   imports: [
@@ -17,8 +16,9 @@ import { UsuariosController } from './modules/usuarios/usuarios.controller';
       imports: [ConfigModule],
       useFactory: () => databaseOptions(),
     }),
+    UsuariosModule,
   ],
-  controllers: [AppController, UsuariosController],
-  providers: [AppService, UsuariosService]
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

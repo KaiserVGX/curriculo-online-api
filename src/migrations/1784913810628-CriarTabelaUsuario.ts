@@ -5,12 +5,12 @@ export class CriarTabelaUsuario1784913810628 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-        create table if not exists usarios(
-        id UUID PRIMARY KEY DEFAULT gen_ramdon_uuid(),
+        create table if not exists usuarios(
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(150) NOT NULL UNIQUE,
     senha VARCHAR(150) NOT NULL,
     ativo BOOLEAN NOT NULL DEFAULT true,
-    dt_cadastro TIMESTAMP NOT NULL DEFAULT 'now()'
+    dt_cadastro TIMESTAMP NOT NULL DEFAULT now()
       );
     `)
 }

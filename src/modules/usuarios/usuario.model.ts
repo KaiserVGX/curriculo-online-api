@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeor
 
 
 @Entity("usuarios")
-export class UsuarioMoel {
+export class UsuarioModel {
     
     @PrimaryGeneratedColumn("uuid")
     id: string

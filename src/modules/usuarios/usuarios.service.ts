@@ -1,37 +1,69 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UsuarioMoel } from './usuario.model';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import { UsuarioModel } from './usuario.model';
+import { InjectRepository } from '@nestjs/typeorm';
 import { UsuarioRequestDto } from './dto/usuario_request.dto';
-import bcryt from 'bcrypt';
-import { request } from 'http';
-import { IsEmail } from 'class-validator';
+import bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsuariosService {
     constructor(
-        @InjectRepository(UsuarioMoel)
-        private readonly usuarioRepository: Repository<UsuarioMoel>
+        @InjectRepository(UsuarioModel)
+        private readonly usuarioRepository: Repository<UsuarioModel> 
     ){}
 
-    async addUsuario(Request: UsuarioRequestDto){
+    async addUsuario(request: UsuarioRequestDto){
+        // TODO: validar se existe usuário cadastrado com mesmo email
         const existeUsuario = await this.usuarioRepository.existsBy({
-            email: Request.email
+            email: request.email
         })
-    if(existeUsuario) {
-        throw new BadRequestException("Ops! Usuario já cadastro.")
+        // TODO: Caso exista, emitir um erro de Bad Request
+        if(existeUsuario) {
+            throw new BadRequestException("Ops! Usuário já cadastrado.")
+        }
+        // TODO: criptografar a senha 8 - 12
+        const hashPassword = await bcrypt.hash(request.senha, 12)
+        // TODO: Iremos criar o objeto de usuário
+        const usuario = this.usuarioRepository.create({
+            email: request.email,
+            senha: hashPassword,
+            ativo: true
+        }) 
+        // TODO: Salvar o usuário
+        await this.usuarioRepository.save(usuario) 
+    }
+
+    async listarUsuarios():Promise<UsuarioModel[]> {
+        return await this.usuarioRepository.find()
+    }
+
+    async buscarUsuarioPeloId(usuarioId:string): Promise<UsuarioModel> {
+        const usuario = await this.usuarioRepository.findOneBy({
+            id: usuarioId
+        })
+
+        if(!usuario) throw new NotFoundException("Usuario não encontrado!")
+        return usuario    
     }
     
-    const hashPassword = await bcryt.hash(Request.senha, 12)
-    const usuario = this.usuarioRepository.creste({
-        email: Request.email,
-        senha: hashPassword,
-        ativo: true
-    })
+    async buscarUsuarioPeloEmail(email:string): Promise<UsuarioModel> {
+        const usuario = await this.usuarioRepository.findOneBy({
+            email
+        })
 
-    await this.usuarioRepository.save(usuario)
+        if(!usuario) throw new NotFoundException("Usuario não encontrado!")
+        return usuario    
+    }
 
-}
+    async filtrar(data: {id: string, email: string})
+    :Promise<UsuarioModel | null> {
+        let result
+        if(data.id)
+            result = await this.usuarioRepository.findOneBy({id:data.id})
+        if(data.email)
+            result = await this.usuarioRepository.findOneBy({email:data.email})
+        return result
+    }
 
-
+    async ativarOuDesativarUsuario(usuarioId:string):Promise<void> {}
 }
