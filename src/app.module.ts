@@ -5,6 +5,7 @@ import { databaseOptions } from "./config/datasource";
 import { UsuariosModule } from "./modules/usuarios/usuarios.module";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
+import { CandidatoModule } from './modules/candidato/candidato.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AppService } from "./app.service";
       useFactory: () => databaseOptions(),
     }),
     UsuariosModule,
+    CandidatoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
