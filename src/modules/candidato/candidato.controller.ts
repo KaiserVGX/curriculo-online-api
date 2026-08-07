@@ -1,27 +1,30 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CandidatoService } from './candidato.service';
-import { candidatoRequestDto } from './dto/candidato_request.dto';
+import { CandidatoRequestDto } from './dto/candidato_request.dto';
 import { CandidatoModel } from './candidato.model';
+import { AuthGuard } from 'src/guards/auth_guard';
+import { usuarioAtual} from 'src/decorators/usuario_atual';
 
-@Controller('candidato')
+@UseGuards(AuthGuard)
+@Controller('candidatos')
 export class CandidatoController {
- 
-   constructor(
-    private readonly candidatoService: CandidatoService
-   ){}
 
-   @Post()
-   async addCandidato(
-    @Body() request: candidatoRequestDto):Promise<void> {
-    await this.candidatoService.adicionarDados(request.usuarioId, request)
-   }
+    constructor(
+        private readonly candidatoService: CandidatoService
+    ){}
 
-   @Get("/:id")
-   async carregarDadosCandidato(@Param("id") usuarioId: string)
-    :Promise<CandidatoModel> {
+    @Post()
+    async addCandidato(
+        @usuarioAtual('sub') usuarioId: string,
+        @Body() request: CandidatoRequestDto):Promise<void> {
+        await this.candidatoService.adicionarDados(usuarioId, request)
+    }
+
+    @Get()
+    async carregarDadosCandidato(
+        @usuarioAtual('sub') usuarioId: string)
+        :Promise<CandidatoModel> {
         return await this.candidatoService
             .carregarDadosPeloUsuario(usuarioId)
     }
-   
-
 }

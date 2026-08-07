@@ -1,33 +1,19 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
-import { UsuarioRequestDto } from './dto/usuario_request.dto';
-import { UsuarioModel } from './usuario.model';
-import { UsuariosModule } from './usuarios.module';
+import {  ApiTags } from '@nestjs/swagger';
+import { usuarioAtual } from 'src/decorators/usuario_atual';
+import { AuthGuard } from 'src/guards/auth_guard';
 
+@ApiTags('Usuario')
 @Controller('usuarios')
+@UseGuards(AuthGuard)
 export class UsuariosController {
     constructor(
         private readonly usuarioService: UsuariosService
     ){}
 
-    @Post()
-    async registrarUsuario(@Body() request: UsuarioRequestDto): Promise<void> {
-        await this.usuarioService.addUsuario(request)
+    @Get("/me")
+    async perfil(@usuarioAtual('sub') usuarioId: string):Promise<void> {
+        console.log('***** ',usuarioId)
     }
-
-    @Get()
-    listarUsuarios() {
-    return this.usuarioService.listarUsuarios();
 }
-    
-    
-    @Get("/filtar")
-    async filtrarUsuario(
-        @Query("data") data: {id: string, email: string})
-        :Promise<UsuarioModel | null> {
-            return await this.usuarioService.filtrar(data)
-        }
-
-
-}
-
