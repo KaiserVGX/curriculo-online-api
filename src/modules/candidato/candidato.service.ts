@@ -3,7 +3,7 @@ import { Repository } from 'typeorm';
 import { CandidatoModel } from './candidato.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsuariosService } from '../usuarios/usuarios.service';
-import { candidatoRequestDto } from './dto/candidato_request.dto';
+import { CandidatoRequestDto } from './dto/candidato_request.dto';
 
 @Injectable()
 export class CandidatoService {
@@ -15,20 +15,28 @@ export class CandidatoService {
     ){}
 
     async adicionarDados(idUsuario: string, 
-        request: candidatoRequestDto):Promise<void> {
-        const usuario = await this.usuarioService
+        request: CandidatoRequestDto):Promise<void> {
+            const usuario = await this.usuarioService
             .buscarUsuarioPeloId(idUsuario)
-        
-        const candidato = this.candidatoRepository.create({
-            cpf: request.cpf,
-            estadoCivil: request.estadocivil,
-            dataNascimento: request.datanascimento,
-            nomeCompleto: request.nome,
-            sexo: request.sexo,
-            usuario
-        })    
+    
+            const existeDados = await this.bucarCandidatoPorCpf(request.cpf)
 
-        await this.candidatoRepository.save(candidato)
+            if(!existeDados) {
+                await this.candidatoRepository.save({
+                    cpf: request.cpf,
+                    estadoCivil: request.estadoCivil,
+                    dataNascimento: request.dataNascimento,
+                    nomeCompleto: request.nome,
+                    sexo: request.sexo,
+                    usuario
+                })
+            } else {
+                await this.candidatoRepository.update(existeDados.id, request)
+            }
+        }
+
+    async bucarCandidatoPorCpf(cpf: string): Promise<CandidatoModel | null>{
+        return await this.candidatoRepository.findOneBy({ cpf })
     }
 
     async carregarDadosPeloUsuario(usuarioId: string):Promise<CandidatoModel> {
@@ -37,16 +45,13 @@ export class CandidatoService {
                 usuario: {
                     id: usuarioId
                 }
-                
             },
-           
             relations: {
                 usuario: true
             }
         })
-    
+
         if(!candidato)throw new NotFoundException("Nenhum candidato encontrado")
         return candidato
     }
-
 }
