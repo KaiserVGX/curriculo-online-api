@@ -39,6 +39,17 @@ export class CandidatoService {
         return await this.candidatoRepository.findOneBy({ cpf })
     }
 
+     async bucarCandidatoPorUsuarioId(usuarioId: string): Promise<CandidatoModel>{
+        const candidato = await this.candidatoRepository
+            .findOneBy({ usuario: { id: usuarioId } })
+        if(!candidato) 
+            throw new BadRequestException("Candidato não encontrado")
+        return candidato    
+    }
+
+    
+    
+    
     async carregarDadosPeloUsuario(usuarioId: string):Promise<CandidatoModel> {
         const candidato = await this.candidatoRepository.findOne({
             where: {

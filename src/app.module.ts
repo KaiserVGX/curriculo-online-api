@@ -10,6 +10,8 @@ import { AuthModule } from './modules/auth/auth.module';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { EscolaridadesModule } from './modules/escolaridade/escolaridade.module';
+import { UsuariosController } from './modules/usuarios/usuarios.controller';
 
 @Module({
   imports: [
@@ -24,8 +26,9 @@ import { AppService } from './app.service';
     UsuariosModule,
     CandidatoModule,
     AuthModule,
+    EscolaridadesModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, UsuariosController],
   providers: [AppService],
 })
 export class AppModule {}

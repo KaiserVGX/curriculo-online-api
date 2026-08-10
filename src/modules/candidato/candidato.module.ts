@@ -8,6 +8,7 @@ import { UsuariosModule } from '../usuarios/usuarios.module';
 @Module({
   imports: [TypeOrmModule.forFeature([CandidatoModel]), UsuariosModule],
   controllers: [CandidatoController],
-  providers: [CandidatoService]
+  providers: [CandidatoService],
+  exports: [CandidatoService]
 })
 export class CandidatoModule {}
